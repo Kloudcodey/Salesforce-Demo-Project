@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   add-checklist:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - name: Append checklist by branch type
         uses: actions/github-script@v7
