@@ -1,0 +1,328 @@
+<apex:page showHeader="false"
+           sidebar="false"
+           renderAs="pdf"
+           applyBodyTag="false"
+           standardStylesheets="false"
+           docType="html-5.0">
+
+
+    <title>What You Should Know Before You Travel to Ghana</title>
+    <style type="text/css">
+        
+        body {
+            font-family: 'Arial', 'Helvetica Neue', Helvetica, sans-serif;
+            font-size: 10pt;
+            color: #1a1a1a;
+            background: #f0f0f0;
+            margin-left: -65px;
+        }
+
+        .page {
+            background: #ffffff;
+            width: 700px !important;
+        	
+            box-shadow: 0 2px 18px rgba(0,0,0,0.13);
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .logo-block {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 120px;
+        	margin-top: -50px;
+        }
+
+        .logo-icon {
+            width: 68px;
+            height: 68px;
+            margin-bottom: 4px;
+        }
+
+        .logo-text {
+            font-family: 'Arial', sans-serif;
+            font-size: 17pt;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+            color: #222;
+        margin-top: -50px;
+        }
+
+        .contact-block {
+            text-align: right;
+            line-height: 1.55;
+        margin-top: -50px;
+        }
+
+        .contact-block .company-name {
+            font-size: 13pt;
+            font-weight: bold;
+            color: #1a1a1a;
+            display: block;
+            margin-bottom: 2px;
+        margin-top: -50px;
+        }
+
+        .contact-block p {
+            font-size: 9pt;
+            color: #333;
+            line-height: 0.4 !important;
+        	margin-left: 490px;
+        }
+
+        .divider {
+            border: none;
+            border-top: 2px solid #111;
+            margin: 10px 0 14px 0;
+        }
+
+        .page-title {
+            text-align: center;
+            font-size: 12pt;
+            font-weight: bold;
+            text-decoration: underline;
+            letter-spacing: 0.3px;
+            margin-bottom: 14px;
+        }
+
+        .content-box {
+            
+            padding: 14px 16px;
+            margin-bottom: 0;
+        }
+
+        .section-heading {
+            font-weight: bold;
+            font-size: 10pt;
+            margin-top: 12px;
+            margin-bottom: 4px;
+        }
+
+        .section-heading:first-child {
+            margin-top: 0;
+        }
+
+        p {
+            font-size: 10pt;
+            line-height: 1.05;
+            text-align: justify;
+            margin-bottom: 7px;
+        }
+        ul.doc-list {
+            margin: 6px 0 8px 22px;
+            padding: 0;
+        }
+
+        ul.doc-list li {
+            font-size: 10pt;
+            line-height: 1.55;
+            text-align: justify;
+            margin-bottom: 5px;
+            list-style-type: disc;
+        }
+
+        ul.doc-list.plain-list li {
+            list-style-type: disc;
+            margin-bottom: 3px;
+        }
+
+        .center-bold {
+            text-align: center;
+            font-weight: bold;
+            font-size: 10pt;
+            margin: 10px 0 6px 0;
+        }
+
+        .inline-bold {
+            font-weight: bold;
+        }
+        
+        .first-page{
+        border: 2px solid #000;
+        padding: 27px 20px;
+       }
+        .second-page{
+        border: 2px solid #000;
+        padding: 22px 20px;
+       } 
+        .third-page{
+        border: 2px solid #000;
+        padding: 30px 20px;
+       } 
+        .fourth-page{
+        border: 2px solid #000;
+        padding: 25px 10px;
+       } 
+
+        @media print {
+            body { background: white; padding: 0; }
+            .page { box-shadow: none; width: 100%; padding: 20mm 18mm; }
+        }
+    </style>
+<body>
+<div class="page">
+
+    <!-- ══ HEADER ══════════════════════════════════════════ -->
+    <div class="header">
+        <!-- Logo (SVG inline replication of Landtours logo) -->
+        
+        <div class="logo-block">
+		<apex:image value="{!$Resource.logo}" 
+            width="190" 
+            height="30"/>
+        </div>
+
+        <!-- Contact info -->
+        <div class="contact-block">
+            <span class="company-name">Landtours Ghana Limited</span>
+            <p>199 SoulaLoop,North Labone,Ghana</p>
+            <p>Tel: +233 (0) 302 761 752</p>
+            <p>Fax: +233 (0) 302 761 751</p>
+            <p>Email: travelafrica@landtours.com</p>
+            <p>Website: www.landtours.com</p>
+        </div>
+    </div>
+
+    <hr class="divider"/>
+
+    <!-- ══ PAGE TITLE ══════════════════════════════════════ -->
+    <div class="page-title">WHAT YOU SHOULD KNOW BEFORE YOU TRAVEL TO GHANA</div>
+
+    <!-- ══ BORDERED CONTENT BOX ════════════════════════════ -->
+    <div class="content-box">
+        <div class="first-page">            
+        <!-- VISA -->
+        <div class="section-heading">VISA REQUIREMENTS</div>
+        <p>It is the sole responsibility of passengers to secure and bring the required documentation/visas. You will require multiply/re-entry visa if you are traveling to more than one African country. For further information visit <span style="color:#1155CC;">www.travel.state.gov</span></p>
+
+        <!-- Climate -->
+        <div class="section-heading">Climate/Clothes</div>
+        <p>As a typical tropical country, Ghana has an average monthly temperature of between 21c and 32c (70f - 90f). At certain times of the year temperatures can be even higher. It is important therefore to travel with appropriate clothing/protection e.g. light cotton clothes, sunscreens, sunglasses and hats.</p>
+        <p>The air-conditioned coaches and Ghana evenings can become quite cool; therefore, we suggest that you bring along a sweater to wear when needed.</p>
+        <p>Once in the country, you are advised to drink as much bottled water as possible. This will prevent dehydration.</p>
+
+        <!-- Medical -->
+        <div class="section-heading">Medical Problems</div>
+        <p>It is important to take protection against malaria before your departure to Ghana. Your family doctors can advise on this. It is advisable to let your group leader or Land Tours know about any ailment that you have in case of any emergency. We suggest that you bring along any medicines you are taking because you may not find the same kind here in Ghana. We advise that you keep your medicine on you at all times. There are however very good medical facilities and hospitals in Ghana.</p>
+
+        <!-- Vaccinations -->
+        <div class="section-heading">Vaccinations and Health Concerns</div>
+        <ul class="doc-list">
+            <li>Yellow fever vaccinations are required for all foreign nationals visiting Africa. Updating your tetanus vaccine and any others your doctor might recommend (such as malaria, cholera, typhoid, meningitis or rabies) is also a good idea. Taking malaria prophylactics before you arrive is generally recommended. Start taking your malaria pills before you depart as instructed by your doctor - usually 4 weeks. Make sure you take them exactly on schedule without missing doses. Wear long pants and long-sleeved clothing especially around dawn and dusk when the <em>anopheles</em> mosquitoes are most active</li>
+        </ul>
+
+        <div class="section-heading">What You Need:</div>
+        <ul class="doc-list plain-list">
+            <li>Anti-malarial drugs</li>
+            <li>Insect repellent with DEET</li>
+            <li>Long-sleeved clothing and trousers</li>
+        </ul>
+
+        <ul class="doc-list plain-list">
+            <li><span class="inline-heading">Mobility issues/Allergic reactions:</span>
+            Kindly advise if any of you have mobility issues or specific allergic reactions.</li>
+        </ul>
+    </div>
+        <div class="second-page">
+        <!-- Food -->
+        <div class="section-heading">Food</div>
+        <p>Ghana has an abundance of food grown locally or imported and you can usually find a wide variety of continental and local Ghanaian dishes in most Ghanaian restaurants. There are also many international restaurants, which specialize in food from countries such as China, India, Indonesia, Eastern &amp; Western Europe as well as other West African countries. There are fast food chains from America that serve fried chicken, hamburgers, French fries etc. We definitely encourage visitors to sample the local dishes however, be careful with the local hot pepper, called shito and we suggest that you <span class="inline-bold">Do Not</span> eat food from street vendors. Only drink sealed bottled water, which is readily available and can be purchased at most grocery stores throughout Ghana.</p>
+
+        <!-- Worship -->
+        <div class="section-heading">Christian and Islamic Worships</div>
+        <p>Church worship on Sundays and Islamic worship on Fridays are fully participated in by Ghanaians. Those who may wish to share fellowship with Ghanaians are invited. There are various churches (different denominations) as well as numerous mosques in town.</p>
+
+        <!-- Currency -->
+        <div class="section-heading">Currency/Foreign Currency Exchange</div>
+        <p>The currency used in Ghana in known as the Cedi. Foreign currency can be exchanged at Forex bureaux, which generally give a better rate than banks. We recommend that you bring cash for convenient access and easy conversion to the local currency. Forex bureaux exchange rates vary from place to place however, the difference is normally very small. Notes in larger denominations attract a higher rate. Hotels and shops may exchange US$ for Ghana cedis but at a lower exchange rate. Do not change money in the street, ever.</p>
+        <p>Traveler's checks are changed at a much lower rate and are accepted by a very limited number of banks. In other words, it is difficult to change traveler's checks. Visa and American Express cards are not widely used for purchasing goods outside of the major international hotels. ATM machines are available in all banks and EZI cash points in most cities. Please note that VISA cards are widely accepted by all ATMs. Only one bank, Ghana Commercial Bank accepts MasterCard.</p>
+
+        <!-- Bargaining -->
+        <div class="section-heading">Bargaining</div>
+        <p>An interesting aspect of shopping in Ghana is that apart from fixed prices of items on sale, there is the bargaining system, where the buyer and the seller negotiate on the price. Usually, the seller starts the price 80% above the normal price, so you have to be persuasive enough to beat the price down. It is also very important that you shop around to establish the price of a commodity before buying. But like the saying goes, a good price is what the item is worth to you.</p>
+
+        <!-- Public Transport -->
+        <div class="section-heading">Public Transport</div>
+        <p>There are various types of public transportation in Ghana; however, taxis are the fastest. There are line taxis, which are shared with others and obviously is cheapest, dropping taxis which are hired by you alone and drop you at your destination. Rates are negotiable. Lastly, there are charter taxis which are generally hired for multi-destinations and charges are on hourly basis.</p>
+
+        <!-- Electrical -->
+        <div class="section-heading">Electrical Appliances</div>
+        <p>Please note that Ghana operates on 220 volts. If you are coming from the U.S you will need to bring an adapter. Electrical outlets accept either the three pronged or two pronged plugs.</p>
+
+        <!-- Cooperation -->
+        <div class="section-heading">Cooperation</div>
+        <p>We ask that you cooperate with us by adhering to scheduled times. Please bear in mind that in dealing with a large group, everyone's cooperation is needed in order to accomplish everything planned for each tour. For instance, if you are 10 minutes late you will delay the group from starting on schedule and the group will have 10 minutes less to spend at the tour attraction. It is necessary to sacrifice individual desires so that the whole group can have a great trip.</p>
+       
+        <!-- Entry Fee -->
+        <div class="section-heading">Entry Fee for Cameras/Videos</div>
+        <p>You are allowed to take pictures in the Castles, museums and at monuments. However, you should note that there are charges of between $1.00 to $5.00 for taking cameras and videos into these tour sites.</p>
+ </div>
+        <div class="third-page">
+        <!-- Packing -->
+        <div class="section-heading">Packing to Depart U. S.</div>
+        <p>For quick identification of your luggage, all group members should use the same bright colored tags.</p>
+        <p>As a precaution, you should tag all luggages with your business address, your destination, dates of stay and the name of the Airline and Flight number as well.</p>
+        <p>Remember to remove all old luggage tags so that airline luggage handlers do not get confused.</p>
+        <p>Make a list of contents of each bag, especially if you will be switching airlines.</p>
+        <p>If you have to force your luggage shut, it means you have over packed. Do not risk this as it may burst open.</p>
+        <p>Please find below our accepted Luggage Allowance for your Tour:</p>
+        <p><span class="inline-bold">Large Luggage:</span></p>
+        <ul class="doc-list plain-list" style="margin-left:30px;">
+            <li>One (1) Large Luggage allowed per passenger, which should weigh no more than 50 pounds (22.5 kg). It should not exceed 62 inches with your total length plus width and height.</li>
+        </ul>
+        <p><span class="inline-bold">Carry – On Luggage:</span></p>
+        <ul class="doc-list plain-list" style="margin-left:30px;">
+            <li>One (1) Carry on luggage is allowed per passenger, which should weigh no more than 40 pounds (18 kg). The length, width and height should be approximately 22in x 14in x 9in respectively. It should fit easily on an overhead bin or underneath the seat in front of you.</li>
+        </ul>
+        <p>In the event this Luggage Allowance is not adhered to Land Tours will not be held responsible for the additional cost of conveying the additional luggage pieces during the interim of the tour.</p>
+
+        <!-- Meeting at Airport -->
+        <div class="section-heading">Meeting at the Airport:</div>
+        <p>Ghana's International Airport has undergone a complete renovation. Tour operators are no longer allowed to meet clients inside the arrival hall (as we used to). You will therefore be responsible for your luggage and the Land Tours team will meet you at the "meet and greet" area outside the arrival hall. Your driver/ guide will have a placard bearing your name and/or group name.</p>
+
+        <!-- Gifts -->
+        <div class="section-heading">Gifts</div>
+        <p>Most tourists enjoy giving gifts to Ghanaians, especially those that live in villages. We commend this generosity; however, we would ask you not to give gifts in situations where there are more than five people around. If you do so, you may attract a crowd and you could be mobbed. It is recommended that you ask your tour guide for assistance before dispensing gifts.</p>
+
+        <!-- Communications -->
+        <div class="section-heading">Communications</div>
+        <p>At your hotel you will have access to phones with international lines, faxes and email, however, this may be different once you leave your hotel and you are away from the city. There are also many communication/business centers in most cities.</p>
+
+        <!-- Tips -->
+        <div class="section-heading">Tips</div>
+        <p>Tips are encouraged for better relations. You may carry smaller Cedi denominations in your pocket to satisfy those who offer services. The amount you offer depends on the quality of the service rendered to you. If a tipping fee has been included in the cost of your tour, tipping those who provide services during the tour will not be necessary.</p>
+        
+        <!-- Photographs -->
+        <div class="section-heading">Photographs</div>
+        <p>You may take photographs anywhere except at military and police installations embassies, zones and residences. Pictures of individuals may be taken with their permission. When in doubt consult your guide.</p>
+		</div>
+        <div class="fourth-page">
+        <!-- Social Ethics -->
+        <div class="section-heading">Social Ethics</div>
+        <p>Ghana like every other country has its own code of social ethics. For instance, it is considered a gross insult or anathema to receive, give or point at someone with your left hand.</p>
+
+        <!-- Trade -->
+        <div class="section-heading">Trade and Business</div>
+        <p>We suggest that you do not enter into trade or business transactions with casual friends, they may not be genuine. Those who wish to do so must seek the advice of consultants.</p>
+        <p>We suggest that you do not buy precious minerals from unlicensed dealers, they may be fake.</p>
+
+        <!-- Night Clubs -->
+        <div class="section-heading">Night Clubs</div>
+        <p>There are many clubs and discos in Ghana, particularly Accra. Your guide will be able to give you the names of the most popular ones. It would be interesting for you to see how Ghanaians party!!</p>
+
+        <!-- If Something Goes Wrong -->
+        <div class="section-heading">If Something Goes Wrong</div>
+        <p>If your luggage does not arrive on your flight alert airline personnel immediately, it may still be on board.</p>
+        <p>If your luggage is not found you should fill out a copy of a baggage claim form from the Airline, and return it to the airline officials.</p>
+        <p>If your luggage has been damaged, check if all its contents are intact right away. If you notice something, report to the airline representative and s/he will write a written report known as a Property Irregularity Report.</p>
+        </div>
+    </div><!-- end content-box -->
+</div>
+    </body>
+</apex:page>
