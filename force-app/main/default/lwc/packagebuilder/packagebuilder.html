@@ -1,0 +1,701 @@
+<template>
+    <lightning-card title="Opportunity Packages" icon-name="standard:product">
+
+        <div slot="actions" class="card-actions">
+            <lightning-badge label={badgeLabel} class="pkg-count-badge"></lightning-badge>
+            <lightning-button label="Add Package" icon-name="utility:add" variant="brand" onclick={openModal}>
+            </lightning-button>
+        </div>
+
+        <!-- Stage bar -->
+        <div class="stage-bar">
+            <lightning-icon icon-name="utility:opportunity" size="xx-small"></lightning-icon>
+            <span>Opportunity Stage &nbsp;—&nbsp;</span>
+            <strong>{currentStage}</strong>
+        </div>
+
+        <!-- Package list -->
+        <template if:true={hasPackages}>
+            <div class="pkg-list">
+                <template for:each={decoratedPackages} for:item="pkg">
+                    <div key={pkg.Id} class="pkg-card">
+
+                        <!-- ═══ Summary row ════════════════════════════════ -->
+                        <div class="pkg-summary" data-id={pkg.Id} onclick={handleToggleExpand}>
+
+                            <!-- Chevron -->
+                            <lightning-button-icon icon-name={pkg.chevronIcon} variant="bare" size="small"
+                                alternative-text="Toggle details" data-id={pkg.Id} onclick={handleToggleExpand}>
+                            </lightning-button-icon>
+
+                            <!-- Name + Tour -->
+                            <div class="pkg-name">{pkg.Name}</div>
+
+                            <div class="pkg-tour">
+                                <div class="pkg-tour-label">Tour</div>
+                                <div>{pkg.tourName}</div>
+                            </div>
+
+                            <!-- Version chip -->
+                            <span class="pkg-version">v{pkg.Package_Version__c}</span>
+
+                            <!-- PAX input -->
+                            <div class="pkg-pax-wrap" onclick={_stopProp}>
+                                <lightning-input type="number" label="PAX" min="1" max="200"
+                                    value={pkg.Number_of_Pax__c} variant="label-inline" disabled={pkg.isSent}
+                                    data-id={pkg.Id} onchange={handlePaxChange} class="pkg-pax-input"></lightning-input>
+                            </div>
+
+                            <!-- Price block -->
+                            <!-- Price block -->
+<div class="pkg-price-block">
+
+    <div class="pkg-price-block">
+
+    <div class="pkg-price">
+
+        <lightning-formatted-number
+            value={pkg.displayPPP}
+            format-style="currency"
+            currency-code="USD"
+            maximum-fraction-digits="0">
+        </lightning-formatted-number>
+
+    </div>
+
+    <div class="pkg-price-per">
+        Per Person
+    </div>
+
+    <div class="pkg-price-per">
+
+        Total :
+
+        <lightning-formatted-number
+            value={pkg.displayTotal}
+            format-style="currency"
+            currency-code="USD"
+            maximum-fraction-digits="0">
+        </lightning-formatted-number>
+
+    </div>
+
+</div>
+    
+    <div class="pkg-price-per">
+        {pkg.displayPaxCat}
+    </div>
+
+    <template if:true={pkg.hasCostWarning}>
+
+        <div class="no-cost-warn">
+
+            <lightning-icon
+                icon-name="utility:warning"
+                size="xx-small">
+            </lightning-icon>
+
+            &nbsp;No Tour Cost
+
+        </div>
+
+    </template>
+
+</div>
+
+                            <!-- Status badge -->
+                            <template if:true={pkg.isSent}>
+                                <span class="status-badge status-sent">
+                                    <lightning-icon icon-name="utility:success" size="xx-small"></lightning-icon>
+                                    &nbsp;Sent
+                                </span>
+                            </template>
+                            <template if:false={pkg.isSent}>
+                                <span class="status-badge status-draft">{pkg.Status__c}</span>
+                            </template>
+
+                            <!-- Sent date + resend count -->
+                            <div class="pkg-meta">
+                                <template if:true={pkg.Sent_Date__c}>
+                                    <lightning-formatted-date-time value={pkg.Sent_Date__c} year="numeric" month="short"
+                                        day="2-digit"></lightning-formatted-date-time>
+                                    &nbsp;·&nbsp;
+                                </template>
+                                Sends:&nbsp;{pkg.Resend_Count__c}
+                            </div>
+
+                            <!-- Action buttons — stopPropagation on wrapper prevents expand-toggle -->
+                            <div class="pkg-actions" onclick={_stopProp}>
+                                <lightning-button-icon icon-name="utility:edit" variant="border-filled" size="small"
+                                    alternative-text="Edit" title="Edit" data-id={pkg.Id}
+                                    onclick={handleEdit}></lightning-button-icon>
+                                <lightning-button-icon icon-name="utility:delete" variant="border-filled" size="small"
+                                    alternative-text="Delete" title="Delete"  data-id={pkg.Id}
+                                    onclick={removePackage}></lightning-button-icon>
+                            </div>
+
+                        </div><!-- end pkg-summary -->
+
+                        <!-- ═══ Edit panel ════════════════════════════════ -->
+                        <template if:true={pkg.isEditing}>
+                            <div class="pkg-edit-panel">
+                                <div class="pkg-edit-header">
+                                    <lightning-icon icon-name="utility:edit" size="x-small"></lightning-icon>
+                                    &nbsp;Editing:&nbsp;<strong>{pkg.Name}</strong>
+                                </div>
+
+                                <!-- Live price preview bar -->
+                                <div class="price-preview-bar">
+                                    <div class="price-preview-item">
+                                        <span class="price-preview-label">PAX Category</span>
+                                        <span class="price-preview-value cat-badge">{pkg.editData._livePaxCat}</span>
+                                    </div>
+                                    <div class="price-preview-divider"></div>
+                                    <div class="price-preview-item">
+                                        <span class="price-preview-label">Total Price</span>
+                                        <span class="price-preview-value price-highlight">
+                                            <lightning-formatted-number
+                                                value={pkg.editData._liveTotal}
+                                                format-style="currency"
+                                                currency-code="USD"
+                                                maximum-fraction-digits="0"
+                                            ></lightning-formatted-number>
+                                        </span>
+                                    </div>
+                                    <div class="price-preview-divider"></div>
+                                    <div class="price-preview-item">
+                                        <span class="price-preview-label">Per Person</span>
+                                        <span class="price-preview-value">
+                                            <lightning-formatted-number
+                                                value={pkg.editData._livePPP}
+                                                format-style="currency"
+                                                currency-code="USD"
+                                                maximum-fraction-digits="0"
+                                            ></lightning-formatted-number>
+                                        </span>
+                                    </div>
+                                    <template if:true={pkg.showNoCostWarning}>
+                                        <div class="price-preview-divider"></div>
+                                        <div class="no-cost-warn">
+                                            <lightning-icon icon-name="utility:warning" size="xx-small"
+                                                variant="warning"></lightning-icon>
+                                            &nbsp;No cost row for this PAX category
+                                        </div>
+                                    </template>
+                                </div>
+
+                                <!-- Edit fields -->
+                                <div class="slds-grid slds-gutters slds-wrap slds-m-top_small">
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                                        <lightning-input label="Number of PAX" type="number" min="1" max="200"
+                                            value={pkg.editData.Number_of_Pax__c} data-id={pkg.Id}
+                                            data-field="Number_of_Pax__c" onchange={handleEditFieldChange}>
+                                        </lightning-input>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                                        <lightning-input label="Single Supplement ($)" type="number" min="0"
+                                            value={pkg.editData.Single_Supplement__c} data-id={pkg.Id}
+                                            data-field="Single_Supplement__c" onchange={handleEditFieldChange}>
+                                        </lightning-input>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                                        <lightning-input label="Modification Notes" type="text"
+                                            value={pkg.editData.Modification_Notes__c} data-id={pkg.Id}
+                                            data-field="Modification_Notes__c" onchange={handleEditFieldChange}>
+                                        </lightning-input>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                                        <lightning-textarea label="Custom Itinerary" max-length="5000"
+                                            value={pkg.editData.Custom_Itinerary__c} data-id={pkg.Id}
+                                            data-field="Custom_Itinerary__c" onchange={handleEditFieldChange}>
+                                        </lightning-textarea>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                                        <lightning-textarea label="Custom Hotels" max-length="5000"
+                                            value={pkg.editData.Custom_Hotels__c} data-id={pkg.Id}
+                                            data-field="Custom_Hotels__c" onchange={handleEditFieldChange}>
+                                        </lightning-textarea>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                                        <lightning-textarea label="Custom Inclusions" max-length="5000"
+                                            value={pkg.editData.Custom_Inclusions__c} data-id={pkg.Id}
+                                            data-field="Custom_Inclusions__c" onchange={handleEditFieldChange}>
+                                        </lightning-textarea>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                                        <lightning-textarea label="Custom Exclusions" max-length="5000"
+                                            value={pkg.editData.Custom_Exclusions__c} data-id={pkg.Id}
+                                            data-field="Custom_Exclusions__c" onchange={handleEditFieldChange}>
+                                        </lightning-textarea>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-1">
+                                        <lightning-textarea label="Custom Meals" max-length="2000"
+                                            value={pkg.editData.Custom_Meals__c} data-id={pkg.Id}
+                                            data-field="Custom_Meals__c" onchange={handleEditFieldChange}>
+                                        </lightning-textarea>
+                                    </div>
+                                </div>
+
+                                <div class="edit-save-row">
+                                    <lightning-button label="Cancel" data-id={pkg.Id} onclick={handleCancelEdit}>
+                                    </lightning-button>
+                                    <lightning-button label="Save Changes" variant="brand" icon-name="utility:save"
+                                        disabled={isSaving} data-id={pkg.Id} onclick={handleSaveEdit}>
+                                    </lightning-button>
+                                </div>
+                            </div>
+                        </template>
+
+                        <!-- ═══ Expanded detail panel ════════════════════ -->
+                        <template if:true={pkg.expanded}>
+                            <div class="pkg-detail-panel">
+
+                                <!-- Loading spinner -->
+                                <template if:true={pkg.isLoadingTour}>
+                                    <div class="slds-align_absolute-center slds-p-around_medium">
+                                        <lightning-spinner alternative-text="Loading" size="small"></lightning-spinner>
+                                    </div>
+                                </template>
+
+                                <!-- Tour information grid -->
+                                <div>
+                                    <div class="section-heading">
+                                        <lightning-icon icon-name="standard:tour" size="xx-small"></lightning-icon>
+                                        Tour Information
+                                    </div>
+                                    <div class="info-grid">
+                                        <div>
+                                            <div class="info-label">Tour Type</div>
+                                            <div class="info-value">{pkg.tourType}</div>
+                                        </div>
+                                        <div>
+                                            <div class="info-label">Destinations</div>
+                                            <div class="info-value">{pkg.tourDest}</div>
+                                        </div>
+                                        <div>
+                                            <div class="info-label">Duration</div>
+                                            <div class="info-value">{pkg.tourDuration} days</div>
+                                        </div>
+                                        <div>
+                                            <div class="info-label">Single Supplement</div>
+                                            <div class="info-value">
+                                                <lightning-formatted-number value={pkg.Single_Supplement__c}
+                                                    format-style="currency" currency-code="USD">
+                                                </lightning-formatted-number>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="info-label">Client Response Date</div>
+                                            <div class="info-value">
+                                                <lightning-formatted-date-time value={pkg.Client_Response_Date__c}
+                                                    year="numeric" month="short" day="2-digit">
+                                                </lightning-formatted-date-time>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="info-label">Resend Count</div>
+                                            <div class="info-value">{pkg.Resend_Count__c}</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Services -->
+                                <div class="slds-m-top_medium">
+                                    <div class="section-heading">
+                                        <lightning-icon icon-name="utility:list" size="xx-small"></lightning-icon>
+                                        Services
+                                    </div>
+                                    <div class="services-grid">
+                                        <div class="service-box service-box-included">
+                                            <div class="service-box-label">
+                                                <lightning-icon icon-name="utility:check" size="xx-small">
+                                                </lightning-icon>
+                                                &nbsp;Included
+                                            </div>
+                                            <p class="service-text">{pkg.tourIncludes}</p>
+                                        </div>
+                                        <div class="service-box service-box-excluded">
+                                            <div class="service-box-label">
+                                                <lightning-icon icon-name="utility:close" size="xx-small">
+                                                </lightning-icon>
+                                                &nbsp;Excluded
+                                            </div>
+                                            <p class="service-text">{pkg.tourExcludes}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Custom overrides -->
+                                <template if:true={pkg.Custom_Itinerary__c}>
+                                    <div class="override-card">
+                                        <div class="override-label">Custom Itinerary</div>
+                                        <p class="override-text">{pkg.Custom_Itinerary__c}</p>
+                                    </div>
+                                </template>
+                                <template if:true={pkg.Custom_Hotels__c}>
+                                    <div class="override-card">
+                                        <div class="override-label">Custom Hotels</div>
+                                        <p class="override-text">{pkg.Custom_Hotels__c}</p>
+                                    </div>
+                                </template>
+                                <template if:true={pkg.Custom_Inclusions__c}>
+                                    <div class="override-card">
+                                        <div class="override-label">Custom Inclusions</div>
+                                        <p class="override-text">{pkg.Custom_Inclusions__c}</p>
+                                    </div>
+                                </template>
+                                <template if:true={pkg.Custom_Exclusions__c}>
+                                    <div class="override-card">
+                                        <div class="override-label">Custom Exclusions</div>
+                                        <p class="override-text">{pkg.Custom_Exclusions__c}</p>
+                                    </div>
+                                </template>
+                                <template if:true={pkg.Custom_Meals__c}>
+                                    <div class="override-card">
+                                        <div class="override-label">Custom Meals</div>
+                                        <p class="override-text">{pkg.Custom_Meals__c}</p>
+                                    </div>
+                                </template>
+                                <template if:true={pkg.Modification_Notes__c}>
+                                    <div class="override-card">
+                                        <div class="override-label">Modification Notes</div>
+                                        <p class="override-text">{pkg.Modification_Notes__c}</p>
+                                    </div>
+                                </template>
+
+                                <!-- Tour Costs -->
+                                <!-- Tour Costs -->
+                                <div class="slds-m-top_medium">
+
+                                    <div class="section-heading">
+                                        <lightning-icon icon-name="utility:currency" size="xx-small"></lightning-icon>
+                                        Tour Costs
+                                    </div>
+
+                                    <template if:true={pkg.hasTourCosts}>
+
+                                        <div class="data-table-wrap">
+
+                                            <table>
+
+                                                <thead>
+                                                    <tr>
+
+                                                        <th>Hotel Tier</th>
+                                                        <th>PAX 6</th>
+                                                        <th>PAX 8</th>
+                                                        <th>PAX 10</th>
+                                                        <th>PAX 12</th>
+                                                        <th>Single Supplement</th>
+                                                        <th>Quote To Client</th>
+                                                        <th>Valid From</th>
+                                                        <th>Valid To</th>
+
+                                                    </tr>
+                                                </thead>
+
+                                                <tbody>
+
+                                                    <template for:each={pkg.tourCosts} for:item="cost">
+
+                                                        <tr key={cost.Id}>
+
+                                                            <td>
+                                                                {cost.Hotel_Tier__c}
+                                                            </td>
+
+                                                            <td>
+                                                                <lightning-formatted-number
+                                                                    value={cost.PAX_6_Total_Cost__c}
+                                                                    format-style="currency" currency-code="USD">
+                                                                </lightning-formatted-number>
+                                                            </td>
+
+                                                            <td>
+                                                                <lightning-formatted-number
+                                                                    value={cost.PAX_8_Total_Cost__c}
+                                                                    format-style="currency" currency-code="USD">
+                                                                </lightning-formatted-number>
+                                                            </td>
+
+                                                            <td>
+                                                                <lightning-formatted-number
+                                                                    value={cost.PAX_10_Total_Cost__c}
+                                                                    format-style="currency" currency-code="USD">
+                                                                </lightning-formatted-number>
+                                                            </td>
+
+                                                            <td>
+                                                                <lightning-formatted-number
+                                                                    value={cost.PAX_12_Total_Cost__c}
+                                                                    format-style="currency" currency-code="USD">
+                                                                </lightning-formatted-number>
+                                                            </td>
+
+                                                            <td>
+                                                                <lightning-formatted-number
+                                                                    value={cost.Single_Supplement__c}
+                                                                    format-style="currency" currency-code="USD">
+                                                                </lightning-formatted-number>
+                                                            </td>
+
+                                                            <td>
+                                                                <lightning-formatted-number
+                                                                    value={cost.Quote_to_Client__c}
+                                                                    format-style="currency" currency-code="USD">
+                                                                </lightning-formatted-number>
+                                                            </td>
+
+                                                            <td>
+                                                                <lightning-formatted-date-time
+                                                                    value={cost.Effective_From__c} year="numeric"
+                                                                    month="short" day="2-digit">
+                                                                </lightning-formatted-date-time>
+                                                            </td>
+
+                                                            <td>
+                                                                <lightning-formatted-date-time
+                                                                    value={cost.Effective_To__c} year="numeric"
+                                                                    month="short" day="2-digit">
+                                                                </lightning-formatted-date-time>
+                                                            </td>
+
+                                                        </tr>
+
+                                                    </template>
+
+                                                </tbody>
+
+                                            </table>
+
+                                        </div>
+
+                                    </template>
+
+                                    <template if:false={pkg.hasTourCosts}>
+
+                                        <div class="slds-box slds-theme_shade slds-text-color_weak slds-p-around_small">
+
+                                            <lightning-icon icon-name="utility:info" size="x-small">
+                                            </lightning-icon>
+
+                                            &nbsp;No cost records found for this tour.
+
+                                        </div>
+
+                                    </template>
+
+                                </div>
+                                <!-- ═══ Package Days (Package_Day__c) ═══════════ -->
+                                <div class="slds-m-top_medium">
+                                    <div class="section-heading">
+                                        <lightning-icon icon-name="utility:date_input" size="xx-small"></lightning-icon>
+                                        Tour Itinerary
+                                        <template if:true={pkg.hasPkgDays}>
+                                            &nbsp;
+                                            <lightning-badge label="Has Custom Days" class="slds-theme_warning">
+                                            </lightning-badge>
+                                        </template>
+                                    </div>
+
+                                    <template if:true={pkg.hasMergedDays}>
+                                        <div class="data-table-wrap">
+                                            <table>
+                                                <thead>
+                                                    <tr>
+                                                        <th style="width:60px">Day</th>
+                                                        <th>Title</th>
+                                                        <th>Description</th>
+                                                        <th>Accommodation</th>
+                                                        
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <template for:each={pkg.mergedDays} for:item="day">
+                                                        <tr key={day.Id}>
+                                                            <td>
+                                                                <lightning-badge label={day.Day_Number__c}>
+                                                                </lightning-badge>
+                                                            </td>
+                                                            <td>{day.Day_Title__c}</td>
+                                                            <td>{day.Day_Description__c}</td>
+                                                            <td>{day.Accommodation__c}</td>
+                                                        
+                                                        </tr>
+                                                    </template>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </template>
+
+                                    <!-- Fallback: no tour days and no package days -->
+                                    <template if:false={pkg.hasMergedDays}>
+                                        <template if:false={pkg.hasTourDays}>
+                                            <div
+                                                class="slds-box slds-theme_shade slds-text-color_weak slds-p-around_small">
+                                                <lightning-icon icon-name="utility:info" size="x-small">
+                                                </lightning-icon>
+                                                &nbsp;No itinerary days found for this tour or package.
+                                            </div>
+                                        </template>
+                                    </template>
+                                </div>
+
+                                <!-- Package Days only (when no tour days exist) -->
+                                <template if:true={pkg.hasPkgDays}>
+                                    <template if:false={pkg.hasTourDays}>
+                                        <div class="slds-m-top_small">
+                                            <div class="section-heading">
+                                                <lightning-icon icon-name="utility:date_input" size="xx-small">
+                                                </lightning-icon>
+                                                Package-Specific Days
+                                            </div>
+                                            <div class="data-table-wrap">
+                                                <table>
+                                                    <thead>
+                                                        <tr>
+                                                            <th style="width:60px">Day</th>
+                                                            <th>Title</th>
+                                                            <th>Description</th>
+                                                            <th>Accommodation</th>
+                                                            <th>Meals</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <template for:each={pkg.pkgDays} for:item="day">
+                                                            <tr key={day.Id}>
+                                                                <td>
+                                                                    <lightning-badge label={day.Day_Number__c}>
+                                                                    </lightning-badge>
+                                                                </td>
+                                                                <td>{day.Day_Title__c}</td>
+                                                                <td>{day.Day_Description__c}</td>
+                                                                <td>{day.Accommodation__c}</td>
+                                                                <td>{day.Meals_Included__c}</td>
+                                                            </tr>
+                                                        </template>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </template>
+
+                            </div><!-- end pkg-detail-panel -->
+                        </template>
+
+                    </div><!-- end pkg-card -->
+                </template>
+            </div>
+        </template>
+
+        <!-- Empty state -->
+        <template if:false={hasPackages}>
+            <div class="empty-state">
+                <div class="empty-state-icon">
+                    <lightning-icon icon-name="utility:package" size="large"></lightning-icon>
+                </div>
+                <div class="empty-state-title">No packages yet</div>
+                <div class="empty-state-sub">Click <strong>Add Package</strong> to link tours to this opportunity.</div>
+            </div>
+        </template>
+
+        <!-- Footer -->
+        <div slot="footer" class="card-footer">
+            <lightning-button label="Cancel" onclick={handleCancel} disabled={isSaving}></lightning-button>
+            <lightning-button label="Send Packages" variant="success" icon-name="utility:send" disabled={sendDisabled}
+                onclick={handleSend}></lightning-button>
+        </div>
+
+    </lightning-card>
+
+    <!-- ═══ Tour Select Modal ══════════════════════════════════════ -->
+    <template if:true={modalOpen}>
+        <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading"
+            class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                            title="Close" onclick={closeModal}>
+                        <lightning-icon icon-name="utility:close" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 id="modal-heading" class="slds-modal__title">Select Tour Packages</h2>
+                </header>
+
+                <div class="slds-modal__content slds-p-around_medium">
+                    <div class="slds-grid slds-gutters_small slds-m-bottom_small">
+                        <div class="slds-col slds-grow">
+                            <lightning-input type="search" placeholder="Search tour name or destination…"
+                                value={modalSearch} onchange={handleModalSearch} variant="label-hidden">
+                            </lightning-input>
+                        </div>
+                        <div class="slds-col slds-shrink">
+                            <lightning-combobox label="Type" variant="label-hidden" placeholder="All types"
+                                value={modalTypeFilter} options={typeOptions} onchange={handleModalTypeFilter}>
+                            </lightning-combobox>
+                        </div>
+                    </div>
+
+                    <div class="table-scroll-wrap">
+                        <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_fixed-layout">
+                            <thead>
+                                <tr class="slds-line-height_reset">
+                                    <th scope="col" style="width:44px"></th>
+                                    <th scope="col">
+                                        <div class="slds-truncate slds-text-title_caps">Tour Name</div>
+                                    </th>
+                                    <th scope="col">
+                                        <div class="slds-truncate slds-text-title_caps">Destinations</div>
+                                    </th>
+                                    <th scope="col" style="width:90px">
+                                        <div class="slds-text-title_caps">Duration</div>
+                                    </th>
+                                    <th scope="col" style="width:120px">
+                                        <div class="slds-text-title_caps">Type</div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template for:each={filteredTours} for:item="tour">
+                                    <tr key={tour.Id} class={tour.rowClass} data-id={tour.Id}
+                                        onclick={handleTourRowClick}>
+                                        <td onclick={_stopProp}>
+                                            <lightning-input type="checkbox" variant="label-hidden"
+                                                checked={tour.selected} disabled={tour.alreadyAdded} data-id={tour.Id}
+                                                onchange={handleTourCheck}></lightning-input>
+                                        </td>
+                                        <td>
+                                            <div class="slds-truncate">{tour.Name}</div>
+                                            <template if:true={tour.alreadyAdded}>
+                                                <lightning-badge label="Already added"></lightning-badge>
+                                            </template>
+                                        </td>
+                                        <td>
+                                            <div class="slds-truncate">{tour.Destinations__c}</div>
+                                        </td>
+                                        <td>{tour.Duration__c} days</td>
+                                        <td>
+                                            <lightning-badge label={tour.Tour_Type__c}></lightning-badge>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <footer class="slds-modal__footer slds-grid slds-grid_align-spread">
+                    <span class="slds-text-body_small slds-text-color_weak slds-align-middle">{selectedCountLabel}</span>
+                    <div>
+                        <lightning-button label="Cancel" class="slds-m-right_small" onclick={closeModal}>
+                        </lightning-button>
+                        <lightning-button label="Add Selected" variant="brand" icon-name="utility:add"
+                            disabled={noSelection} onclick={addSelected}></lightning-button>
+                    </div>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+</template>
