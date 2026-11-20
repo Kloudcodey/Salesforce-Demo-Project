@@ -37,10 +37,6 @@ public class TourResponseController {
             if(!oppList.isEmpty()) {
 
                 opp = oppList[0];
-                
-                // ====================================
-                // RESET FLAGS FOR REVISED PACKAGE
-               // ====================================
 
             if(opp.StageName == 'Package Revised & Resent') {
 
@@ -50,10 +46,6 @@ public class TourResponseController {
 
             update opp;
            }
-
-                // ====================================
-                // ACCEPT
-                // ====================================
 
                 if(actionType == 'accept') {
 
@@ -72,10 +64,6 @@ public class TourResponseController {
                         showAcceptForm = true;
                     }
                 }
-
-                // ====================================
-                // REJECT
-                // ====================================
 
                 else if(actionType == 'reject') {
 
@@ -98,10 +86,6 @@ public class TourResponseController {
         }
     }
 
-    // ====================================
-    // SAVE ACCEPTANCE
-    // ====================================
-
     public PageReference saveAcceptance() {
 
         opp.StageName = 'Package Accepted';
@@ -120,10 +104,6 @@ public class TourResponseController {
 
         return null;
     }
-
-    // ====================================
-    // SAVE REJECTION
-    // ====================================
 
     public PageReference saveRejection() {
         
