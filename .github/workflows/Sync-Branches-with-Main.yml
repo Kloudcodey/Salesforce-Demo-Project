@@ -1,0 +1,204 @@
+name: Sync Branches with Main
+
+on:
+  push:
+    # Triggers on both direct pushes and merged pull requests into main
+    branches:
+      - main
+  # Allows manual execution on any supported OS runner
+  workflow_dispatch:
+    inputs:
+      runner:
+        description: "Runner OS to execute the sync job on"
+        required: false
+        default: "ubuntu-latest"
+        type: choice
+        options:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+
+# Minimum permissions required to read repo history and push branch updates
+permissions:
+  contents: write
+
+# Queue concurrent runs rather than canceling mid-push to prevent partial syncs
+concurrency:
+  group: sync-branches-with-main
+  cancel-in-progress: false
+
+jobs:
+  sync-branches:
+    name: Synchronize Eligible Branches
+    # Uses the selected OS on manual runs; defaults to ubuntu-latest on pushes.
+    # Change the fallback here to macos-latest, windows-latest, or a self-hosted label if preferred.
+    runs-on: ${{ inputs.runner || 'ubuntu-latest' }}
+
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          # Full history is required so Git can always locate the merge base
+          fetch-depth: 0
+          # Explicitly use GITHUB_TOKEN (prevents recursive workflow triggers)
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure cross-platform Git settings
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Prevent Windows runners from rewriting LF/CRLF and causing false merge conflicts
+          git config core.autocrlf false
+          # Prevent path-length failures on Windows repositories with deep directory trees
+          git config core.longpaths true
+
+      - name: Discover and sync eligible branches
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Branches to exclude from synchronization
+          EXCLUDED_BRANCHES=("main" "gh-pages")
+
+          # Tracking arrays for final reporting
+          SYNCED=()
+          UP_TO_DATE=()
+          CONFLICTS=()
+          PUSH_FAILED=()
+          SKIPPED=()
+
+          is_excluded() {
+            local candidate="$1"
+            for excluded in "${EXCLUDED_BRANCHES[@]}"; do
+              if [[ "$candidate" == "$excluded" ]]; then
+                return 0
+              fi
+            done
+            return 1
+          }
+
+          # Bash 3.2-safe (macOS) array formatter under `set -u`
+          format_branches() {
+            if [[ $# -eq 0 ]]; then
+              echo "None"
+              return
+            fi
+            local out="$1"
+            shift
+            for item in "$@"; do
+              out="${out}, ${item}"
+            done
+            echo "$out"
+          }
+
+          echo "Running on OS: ${RUNNER_OS:-$(uname -s)}"
+
+          # Refresh main to ensure we have the latest commit
+          git fetch --prune origin main
+
+          # Discover remote branches without Bash 4+ `mapfile` (macOS ships Bash 3.2)
+          # and strip trailing carriage returns (`\r`) for Windows compatibility
+          REMOTE_BRANCHES=()
+          while IFS= read -r branch; do
+            branch="${branch%$'\r'}"
+            if [[ -n "$branch" ]]; then
+              REMOTE_BRANCHES+=("$branch")
+            fi
+          done < <(
+            git ls-remote --heads origin \
+              | awk '{print $2}' \
+              | sed 's|^refs/heads/||' \
+              | sort
+          )
+
+          echo "Discovered ${#REMOTE_BRANCHES[@]} remote branch(es)."
+
+          for branch in "${REMOTE_BRANCHES[@]+"${REMOTE_BRANCHES[@]}"}"; do
+            if is_excluded "$branch"; then
+              echo "Skipping excluded branch: $branch"
+              continue
+            fi
+
+            echo "::group::Processing branch: $branch"
+
+            # Fetch the latest tip of the target branch (skip if deleted mid-run)
+            if ! git fetch origin "refs/heads/${branch}:refs/remotes/origin/${branch}"; then
+              echo "::warning::Branch '$branch' could not be fetched (may have been deleted). Skipping."
+              SKIPPED+=("$branch")
+              echo "::endgroup::"
+              continue
+            fi
+
+            # Efficiency check: skip if origin/main is already an ancestor of the target branch
+            if git merge-base --is-ancestor origin/main "origin/${branch}"; then
+              echo "Status: Already up to date with main. Skipping."
+              UP_TO_DATE+=("$branch")
+              echo "::endgroup::"
+              continue
+            fi
+
+            # Check out a clean local tracking branch matching the remote tip
+            git checkout -B "$branch" "origin/${branch}"
+
+            # Attempt a standard merge (preserves all target branch commits and history)
+            if git merge --no-edit origin/main; then
+              # Verify the merge actually advanced the branch before pushing
+              if [[ "$(git rev-parse HEAD)" == "$(git rev-parse "origin/${branch}")" ]]; then
+                echo "Status: No changes introduced after merge. Skipping push."
+                UP_TO_DATE+=("$branch")
+              else
+                # Safe push without force flags; fails cleanly if concurrent commits landed
+                if git push origin "HEAD:refs/heads/${branch}"; then
+                  echo "Status: Successfully merged main and pushed to origin/${branch}."
+                  SYNCED+=("$branch")
+                else
+                  echo "::warning::Push failed for '$branch' (possible branch protection or concurrent update)."
+                  PUSH_FAILED+=("$branch")
+                fi
+              fi
+            else
+              # Capture conflict details before aborting
+              CONFLICTED_FILES=$(git diff --name-only --diff-filter=U | tr -d '\r' || true)
+              echo "::warning::Merge conflict detected on branch '$branch'. Skipping without modifying remote."
+              echo "Conflicting files:"
+              echo "${CONFLICTED_FILES:-"(unable to determine conflicting files)"}"
+              git status --short
+
+              # Abort merge and restore a clean working tree for the next branch
+              git merge --abort || true
+              git reset --hard "origin/${branch}"
+              git clean -fd
+
+              CONFLICTS+=("$branch")
+            fi
+
+            echo "::endgroup::"
+          done
+
+          # Return to main when finished
+          git checkout main
+
+          # Write a structured summary to both stdout and the GitHub Actions Step Summary
+          SUMMARY=$(cat <<EOF
+          ## Branch Synchronization Summary (${RUNNER_OS:-Unknown OS})
+
+          | Status | Count | Branches |
+          | --- | --- | --- |
+          | Synced | ${#SYNCED[@]} | $(format_branches ${SYNCED[@]+"${SYNCED[@]}"}) |
+          | Already up to date | ${#UP_TO_DATE[@]} | $(format_branches ${UP_TO_DATE[@]+"${UP_TO_DATE[@]}"}) |
+          | Merge conflict (skipped) | ${#CONFLICTS[@]} | $(format_branches ${CONFLICTS[@]+"${CONFLICTS[@]}"}) |
+          | Push failed | ${#PUSH_FAILED[@]} | $(format_branches ${PUSH_FAILED[@]+"${PUSH_FAILED[@]}"}) |
+          | Skipped (unavailable) | ${#SKIPPED[@]} | $(format_branches ${SKIPPED[@]+"${SKIPPED[@]}"}) |
+          EOF
+          )
+
+          # Strip leading indentation from the heredoc
+          SUMMARY=$(echo "$SUMMARY" | sed 's/^          //')
+
+          if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
+            echo "$SUMMARY" | tee -a "$GITHUB_STEP_SUMMARY"
+          else
+            echo "$SUMMARY"
+          fi
