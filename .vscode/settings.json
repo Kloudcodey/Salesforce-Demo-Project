@@ -4,5 +4,8 @@
     "**/bower_components": true,
     "**/.sf": true,
     "**/.sfdx": true
-  }
+  },
+  "github-actions.workflows.pinned.workflows": [
+    ".github/workflows/pr-branch-checklist.yml"
+  ]
 }

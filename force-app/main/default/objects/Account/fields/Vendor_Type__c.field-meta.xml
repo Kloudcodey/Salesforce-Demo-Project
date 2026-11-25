@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Vendor_Type__c</fullName>
+    <label>Vendor Type</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Hotel</fullName>
+                <default>false</default>
+                <label>Hotel</label>
+            </value>
+            <value>
+                <fullName>Transport</fullName>
+                <default>false</default>
+                <label>Transport</label>
+            </value>
+            <value>
+                <fullName>Guide</fullName>
+                <default>false</default>
+                <label>Guide</label>
+            </value>
+            <value>
+                <fullName>Entry Fee</fullName>
+                <default>false</default>
+                <label>Entry Fee</label>
+            </value>
+            <value>
+                <fullName>Meals</fullName>
+                <default>false</default>
+                <label>Meals</label>
+            </value>
+            <value>
+                <fullName>Ferry</fullName>
+                <default>false</default>
+                <label>Ferry</label>
+            </value>
+            <value>
+                <fullName>Airline</fullName>
+                <default>false</default>
+                <label>Airline</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>
