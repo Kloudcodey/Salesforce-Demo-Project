@@ -36,7 +36,7 @@ jobs:
 
     steps:
       - name: Checkout main branch
-        uses: actions/checkout@v4
+        uses: - uses: actions/github-script@v9
         with:
           ref: main
           # Full history is required so Git can always locate the merge base
