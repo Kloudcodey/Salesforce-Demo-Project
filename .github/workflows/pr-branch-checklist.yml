@@ -1,0 +1,55 @@
+name: PR Branch Checklist
+
+on:
+  pull_request:
+    types: [opened]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  add-checklist:
+    runs-on: windows-latest
+    steps:
+      - name: Append checklist by branch type
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const head = pr.head.ref;
+            const marker = '<!-- branch-checklist -->';
+
+            // skip if already added
+            if ((pr.body || '').includes(marker)) return;
+
+            const lists = {
+              'feature/': `
+            ### Feature Checklist
+            - [ ] Apex tests pass (75%+ coverage)
+            - [ ] LWC/Flow tested in sandbox
+            - [ ] Permission sets updated
+            - [ ] Dry-run deploy OK`,
+              'bugfix/': `
+            ### Bugfix Checklist
+            - [ ] Root cause described
+            - [ ] Regression test added
+            - [ ] Tested in sandbox`,
+              'hotfix/': `
+            ### Hotfix Checklist
+            - [ ] Prod issue linked
+            - [ ] Minimal change only
+            - [ ] Dry-run deploy to prod OK
+            - [ ] Also merge to develop`,
+            };
+
+            const prefix = Object.keys(lists).find(p => head.startsWith(p));
+            if (!prefix) return;
+
+            const newBody = `${pr.body || ''}\n\n${marker}${lists[prefix]}`;
+
+            await github.rest.pulls.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number,
+              body: newBody,
+            });
