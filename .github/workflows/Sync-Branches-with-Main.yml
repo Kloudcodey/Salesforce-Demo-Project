@@ -36,7 +36,7 @@ jobs:
 
     steps:
       - name: Checkout main branch
-        uses: - uses: actions/github-script@v9
+        uses: actions/checkout@v7
         with:
           ref: main
           # Full history is required so Git can always locate the merge base
@@ -193,9 +193,6 @@ jobs:
           | Skipped (unavailable) | ${#SKIPPED[@]} | $(format_branches ${SKIPPED[@]+"${SKIPPED[@]}"}) |
           EOF
           )
-
-          # Strip leading indentation from the heredoc
-          SUMMARY=$(echo "$SUMMARY" | sed 's/^          //')
 
           if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
             echo "$SUMMARY" | tee -a "$GITHUB_STEP_SUMMARY"
