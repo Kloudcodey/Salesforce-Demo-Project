@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>false</available>
+    <encodingKey>UTF-8</encodingKey>
+    <name>Land Tours Deposit &amp; Refund Policy 2026</name>
+    <style>none</style>
+    <subject>2026 Deposit &amp; Refund Policy – Land Tours (action required)</subject>
+    <textOnly>Dear [Client/Group Organizer Name],
+
+Please find attached the official 2026 Deposit Payment and Refund Policy from Land Tours.
+
+This document outlines:
+
+Confirmation and deposit requirements (50% initial deposit, remaining 50% due 120 days prior to tour start)
+
+How deposits are used for hotels, transportation, and services
+
+Cancellation timeframes and applicable refund amounts (including the $1,000 per person administrative fee)
+
+Accepted payment methods and processing fees
+
+Our refund processing timeline
+
+All cancellations must be submitted in writing. We strongly recommend sharing this policy with every member of your group to avoid misunderstandings.
+
+If you have any questions or need clarification before signing, please reply to this email.
+
+Thank you for choosing Land Tours as your ground handler in Ghana and West Africa.
+
+Best regards,
+Land Tours Operations
+[Your Phone Number] | [Your Email Address]
+Reliable ground handling · Ghana · West Africa</textOnly>
+    <type>custom</type>
+    <uiType>Aloha</uiType>
+</EmailTemplate>
